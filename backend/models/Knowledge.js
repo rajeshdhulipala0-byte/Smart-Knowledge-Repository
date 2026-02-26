@@ -18,6 +18,11 @@ const knowledgeSchema = new mongoose.Schema(
       required: [true, 'Content is required'],
       minlength: [10, 'Content must be at least 10 characters'],
     },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Description cannot exceed 500 characters'],
+    },
     tags: {
       type: [String],
       default: [],
@@ -93,6 +98,16 @@ const knowledgeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: false,
+    },
+    sourceUrl: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Source URL cannot exceed 500 characters'],
+    },
+    metadata: {
+      author: String,
+      publishedDate: Date,
+      imageUrl: String,
     },
   },
   {

@@ -203,42 +203,69 @@ exports.batchProcessAI = asyncHandler(async (req, res, next) => {
  * @access  Private
  */
 exports.importFromUrl = asyncHandler(async (req, res, next) => {
-  const { url } = req.body;
+  const { url, category } = req.body;
 
   if (!url) {
     return next(new AppError('URL is required', 400));
   }
 
-  // Scrape content from URL
-  const scrapedData = await webScraperService.scrapeUrl(url);
+  try {
+    // Scrape content from URL
+    const scrapedData = await webScraperService.scrapeUrl(url);
 
-  if (!scrapedData.success) {
-    return next(new AppError('Failed to import from URL', 400));
+    if (!scrapedData.success) {
+      return next(new AppError('Failed to import from URL', 400));
+    }
+
+    // Determine category from tags or use provided/default
+    let knowledgeCategory = category || 'Other';
+    
+    // Try to auto-detect category from tags if not provided
+    if (!category && scrapedData.data.tags && scrapedData.data.tags.length > 0) {
+      const validCategories = [
+        'Technology', 'Science', 'Business', 'Health', 'Education',
+        'Arts', 'Engineering', 'Mathematics', 'Programming', 'Data Science', 'AI/ML'
+      ];
+      
+      const tagLower = scrapedData.data.tags[0].toLowerCase();
+      const categoryMatch = validCategories.find(cat => 
+        tagLower.includes(cat.toLowerCase()) || cat.toLowerCase().includes(tagLower)
+      );
+      
+      if (categoryMatch) {
+        knowledgeCategory = categoryMatch;
+      }
+    }
+
+    // Create knowledge from scraped data
+    const knowledgeData = {
+      title: scrapedData.data.title || 'Untitled Import',
+      description: scrapedData.data.description || scrapedData.data.content.substring(0, 200),
+      content: scrapedData.data.content || 'No content extracted',
+      tags: scrapedData.data.tags || [],
+      category: knowledgeCategory,
+      author: scrapedData.data.author || req.user.name || 'Web Import',
+      sourceUrl: scrapedData.data.sourceUrl,
+      createdBy: req.user._id,
+      metadata: {
+        author: scrapedData.data.author,
+        publishedDate: scrapedData.data.publishedDate,
+        imageUrl: scrapedData.data.imageUrl,
+      },
+    };
+
+    const knowledge = await knowledgeService.createKnowledge(knowledgeData);
+
+    return ApiResponse.success(
+      res,
+      201,
+      'Knowledge imported successfully from URL',
+      knowledge
+    );
+  } catch (error) {
+    console.error('Import URL error:', error);
+    return next(new AppError(error.message || 'Failed to import from URL', 400));
   }
-
-  // Create knowledge from scraped data
-  const knowledgeData = {
-    title: scrapedData.data.title,
-    description: scrapedData.data.description,
-    content: scrapedData.data.content,
-    tags: scrapedData.data.tags || [],
-    sourceUrl: scrapedData.data.sourceUrl,
-    createdBy: req.user._id,
-    metadata: {
-      author: scrapedData.data.author,
-      publishedDate: scrapedData.data.publishedDate,
-      imageUrl: scrapedData.data.imageUrl,
-    },
-  };
-
-  const knowledge = await knowledgeService.createKnowledge(knowledgeData);
-
-  return ApiResponse.success(
-    res,
-    201,
-    'Knowledge imported successfully from URL',
-    knowledge
-  );
 });
 
 /**
