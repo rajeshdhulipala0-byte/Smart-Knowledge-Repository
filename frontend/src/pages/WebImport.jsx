@@ -85,21 +85,13 @@ const WebImport = () => {
       toast.error('Please login to import content');
       navigate('/login');
       return;
-    if (!user) {
-      toast.error('Please login to import content');
-      navigate('/login');
+    }
+
+    if (!urlInput.trim()) {
+      toast.error('Please enter a URL');
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await webImportService.importFromUrl(urlInput);
-      toast.success('Knowledge imported successfully!');
-      navigate(`/knowledge/${response.data._id}`);
-    } catch (error) {
-      console.error('Import error:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to import';
-      toast.error(errorMsg
     setLoading(true);
     try {
       const response = await webImportService.importFromUrl(urlInput);
@@ -123,13 +115,21 @@ const WebImport = () => {
 
   // Handle import from preview
   const handleImportFromPreview = async () => {
+    if (!user) {
+      toast.error('Please login to import content');
+      navigate('/login');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await webImportService.importFromUrl(urlInput);
       toast.success('Knowledge imported successfully!');
       navigate(`/knowledge/${response.data._id}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to import');
+      console.error('Import error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to import';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
       setShowPreview(false);
