@@ -1,0 +1,35 @@
+{
+  "name": "smart-knowledge-repository",
+  "version": "1.0.0",
+  "description": "An intelligent knowledge management system with AI-powered features",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run preview",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "echo \"Run tests in backend and frontend directories separately\"",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/smart-knowledge-repository.git"
+  },
+  "keywords": [
+    "knowledge-management",
+    "ai",
+    "mern-stack",
+    "huggingface",
+    "full-stack"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
