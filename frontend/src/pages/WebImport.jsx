@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import {
   FiGlobe,
   FiLink,
@@ -11,12 +12,14 @@ import {
   FiEye,
   FiX,
   FiCheck,
+  FiAlertCircle,
 } from 'react-icons/fi';
 import webImportService from '../services/webImportService';
 import Spinner from '../components/Spinner';
 
 const WebImport = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('url'); // url, search, trending
   const [loading, setLoading] = useState(false);
   const [urlInput, setUrlInput] = useState('');
@@ -35,6 +38,12 @@ const WebImport = () => {
 
   // Handle URL preview
   const handlePreviewUrl = async () => {
+    if (!user) {
+      toast.error('Please login to use web import features');
+      navigate('/login');
+      return;
+    }
+
     if (!urlInput.trim()) {
       toast.error('Please enter a URL');
       return;
@@ -44,7 +53,7 @@ const WebImport = () => {
     try {
       new URL(urlInput);
     } catch (e) {
-      toast.error('Please enter a valid URL');
+      toast.error('Please enter a valid URL (e.g., https://example.com/article)');
       return;
     }
 
@@ -55,7 +64,16 @@ const WebImport = () => {
       setShowPreview(true);
       toast.success('URL content loaded successfully');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to preview URL');
+      console.error('Preview error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to preview URL';
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again');
+        navigate('/login');
+      } else if (error.response?.status === 400) {
+        toast.error(errorMsg + ' - This URL may not be accessible or supported');
+      } else {
+        toast.error(errorMsg + ' - Please try a different URL');
+      }
     } finally {
       setLoading(false);
     }
@@ -63,8 +81,13 @@ const WebImport = () => {
 
   // Handle URL import
   const handleImportUrl = async () => {
-    if (!urlInput.trim()) {
-      toast.error('Please enter a URL');
+    if (!user) {
+      toast.error('Please login to import content');
+      navigate('/login');
+      return;
+    if (!user) {
+      toast.error('Please login to import content');
+      navigate('/login');
       return;
     }
 
@@ -74,7 +97,25 @@ const WebImport = () => {
       toast.success('Knowledge imported successfully!');
       navigate(`/knowledge/${response.data._id}`);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to import from URL');
+      console.error('Import error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to import';
+      toast.error(errorMsg
+    setLoading(true);
+    try {
+      const response = await webImportService.importFromUrl(urlInput);
+      toast.success('Knowledge imported successfully!');
+      navigate(`/knowledge/${response.data._id}`);
+    } catch (error) {
+      console.error('Import error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to import from URL';
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again');
+        navigate('/login');
+      } else if (error.response?.status === 400) {
+        toast.error(errorMsg + ' - Unable to extract content from this URL');
+      } else {
+        toast.error(errorMsg + ' - The URL may be blocked or inaccessible');
+      }
     } finally {
       setLoading(false);
     }
@@ -190,7 +231,25 @@ const WebImport = () => {
       {/* Tab Content */}
       <div className="bg-white rounded-lg shadow-md p-6">
         {/* URL Import Tab */}
-        {activeTab === 'url' && (
+        {activ{!user && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
+                  <FiAlertCircle className="text-yellow-600 text-xl flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-yellow-900 mb-1">Login Required</h3>
+                    <p className="text-sm text-yellow-800">
+                      You need to be logged in to import content from URLs.{' '}
+                      <button
+                        onClick={() => navigate('/login')}
+                        className="underline font-medium hover:text-yellow-900"
+                      >
+                        Login here
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              eTab === 'url' && (
           <div>
             <h2 className="text-xl font-bold mb-4">Import from URL</h2>
             <p className="text-gray-600 mb-6">
