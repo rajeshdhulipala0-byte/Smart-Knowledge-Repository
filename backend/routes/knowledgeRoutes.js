@@ -6,6 +6,8 @@ const { knowledgeValidation } = require('../validations/validation');
 
 // Public routes
 router.get('/search', knowledgeValidation.search, knowledgeController.searchKnowledge);
+router.get('/trending', knowledgeController.getTrendingTopics);
+router.get('/web-search', knowledgeController.searchWeb);
 router.get('/category/:category', knowledgeController.getKnowledgeByCategory);
 router.get('/', knowledgeController.getAllKnowledge);
 router.get('/:id', knowledgeValidation.id, knowledgeController.getKnowledgeById);
@@ -24,6 +26,19 @@ router.put(
   knowledgeValidation.id,
   knowledgeValidation.update,
   knowledgeController.updateKnowledge
+);
+
+// Web import routes
+router.post(
+  '/import-url',
+  protect,
+  knowledgeController.importFromUrl
+);
+
+router.post(
+  '/preview-url',
+  protect,
+  knowledgeController.previewUrl
 );
 
 // Admin only routes

@@ -11,7 +11,8 @@ import {
   FiMenu,
   FiX,
   FiSettings,
-  FiChevronDown
+  FiChevronDown,
+  FiGlobe
 } from 'react-icons/fi';
 
 const Navbar = () => {
@@ -59,6 +60,14 @@ const Navbar = () => {
             >
               <FiSearch />
               <span>Search</span>
+            </Link>
+
+            <Link
+              to="/web-import"
+              className="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+            >
+              <FiGlobe />
+              <span>Web Import</span>
             </Link>
 
             {user && (
@@ -188,6 +197,15 @@ const Navbar = () => {
             >
               <FiSearch />
               <span>Search</span>
+            </Link>
+
+            <Link
+              to="/web-import"
+              onClick={toggleMobileMenu}
+              className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+            >
+              <FiGlobe />
+              <span>Web Import</span>
             </Link>
 
             {user && (

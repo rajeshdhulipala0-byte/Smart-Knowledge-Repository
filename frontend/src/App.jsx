@@ -8,6 +8,7 @@ import KnowledgeDetails from './pages/KnowledgeDetails'
 import Search from './pages/Search'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
+import WebImport from './pages/WebImport'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="search" element={<Search />} />
+          <Route path="web-import" element={<WebImport />} />
           <Route path="knowledge/:id" element={<KnowledgeDetails />} />
           
           <Route

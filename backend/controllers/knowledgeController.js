@@ -1,4 +1,5 @@
 const knowledgeService = require('../services/knowledgeService');
+const webScraperService = require('../services/webScraperService');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 const ApiResponse = require('../utils/ApiResponse');
@@ -193,5 +194,113 @@ exports.batchProcessAI = asyncHandler(async (req, res, next) => {
     200,
     'Batch AI processing completed',
     results
+  );
+});
+
+/**
+ * @desc    Import knowledge from URL
+ * @route   POST /api/knowledge/import-url
+ * @access  Private
+ */
+exports.importFromUrl = asyncHandler(async (req, res, next) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return next(new AppError('URL is required', 400));
+  }
+
+  // Scrape content from URL
+  const scrapedData = await webScraperService.scrapeUrl(url);
+
+  if (!scrapedData.success) {
+    return next(new AppError('Failed to import from URL', 400));
+  }
+
+  // Create knowledge from scraped data
+  const knowledgeData = {
+    title: scrapedData.data.title,
+    description: scrapedData.data.description,
+    content: scrapedData.data.content,
+    tags: scrapedData.data.tags || [],
+    sourceUrl: scrapedData.data.sourceUrl,
+    createdBy: req.user._id,
+    metadata: {
+      author: scrapedData.data.author,
+      publishedDate: scrapedData.data.publishedDate,
+      imageUrl: scrapedData.data.imageUrl,
+    },
+  };
+
+  const knowledge = await knowledgeService.createKnowledge(knowledgeData);
+
+  return ApiResponse.success(
+    res,
+    201,
+    'Knowledge imported successfully from URL',
+    knowledge
+  );
+});
+
+/**
+ * @desc    Preview content from URL (without saving)
+ * @route   POST /api/knowledge/preview-url
+ * @access  Private
+ */
+exports.previewUrl = asyncHandler(async (req, res, next) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return next(new AppError('URL is required', 400));
+  }
+
+  const scrapedData = await webScraperService.scrapeUrl(url);
+
+  if (!scrapedData.success) {
+    return next(new AppError('Failed to preview URL', 400));
+  }
+
+  return ApiResponse.success(
+    res,
+    200,
+    'URL preview retrieved successfully',
+    scrapedData.data
+  );
+});
+
+/**
+ * @desc    Get trending topics
+ * @route   GET /api/knowledge/trending
+ * @access  Public
+ */
+exports.getTrendingTopics = asyncHandler(async (req, res, next) => {
+  const trending = await webScraperService.getTrendingTopics();
+
+  return ApiResponse.success(
+    res,
+    200,
+    'Trending topics retrieved successfully',
+    trending.data
+  );
+});
+
+/**
+ * @desc    Search web content
+ * @route   GET /api/knowledge/web-search
+ * @access  Public
+ */
+exports.searchWeb = asyncHandler(async (req, res, next) => {
+  const { q, limit } = req.query;
+
+  if (!q) {
+    return next(new AppError('Search query is required', 400));
+  }
+
+  const results = await webScraperService.searchWeb(q, parseInt(limit) || 10);
+
+  return ApiResponse.success(
+    res,
+    200,
+    'Web search completed successfully',
+    results.data
   );
 });
