@@ -276,36 +276,115 @@ class WebScraperService {
   }
 
   /**
-   * Search web content (mock implementation)
+   * Search web content (returns real Wikipedia URLs)
    * In production, integrate with Google Custom Search API, Bing API, or similar
    */
   async searchWeb(query, limit = 10) {
     try {
-      // Mock search results - In production, use a real search API
-      const mockResults = [
-        {
-          title: `${query} - Complete Guide`,
-          description: `Learn everything about ${query} with this comprehensive guide covering basics to advanced topics.`,
-          url: `https://example.com/${query.toLowerCase().replace(/\s+/g, '-')}`,
-          source: 'Example.com',
-        },
-        {
-          title: `Understanding ${query} Concepts`,
-          description: `Deep dive into ${query} fundamentals, practical examples, and real-world applications.`,
-          url: `https://docs.example.com/${query.toLowerCase()}`,
-          source: 'Documentation',
-        },
-        {
-          title: `${query} Tutorial for Beginners`,
-          description: `Step-by-step tutorial to master ${query} from scratch with hands-on examples.`,
-          url: `https://tutorial.example.com/${query}`,
-          source: 'Tutorial Site',
-        },
-      ];
+      // Return real Wikipedia URLs based on common search topics
+      // In production, replace with actual search API
+      const searchMap = {
+        'javascript': [
+          {
+            title: 'JavaScript - Wikipedia',
+            description: 'JavaScript is a programming language and core technology of the Web, alongside HTML and CSS.',
+            url: 'https://en.wikipedia.org/wiki/JavaScript',
+            source: 'Wikipedia',
+          },
+          {
+            title: 'JavaScript Frameworks - Wikipedia',
+            description: 'Overview of popular JavaScript frameworks including React, Angular, and Vue.',
+            url: 'https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks',
+            source: 'Wikipedia',
+          },
+        ],
+        'python': [
+          {
+            title: 'Python (programming language) - Wikipedia',
+            description: 'Python is a high-level, general-purpose programming language.',
+            url: 'https://en.wikipedia.org/wiki/Python_(programming_language)',
+            source: 'Wikipedia',
+          },
+        ],
+        'react': [
+          {
+            title: 'React (software) - Wikipedia',
+            description: 'React is a free and open-source front-end JavaScript library for building user interfaces.',
+            url: 'https://en.wikipedia.org/wiki/React_(software)',
+            source: 'Wikipedia',
+          },
+        ],
+        'node': [
+          {
+            title: 'Node.js - Wikipedia',
+            description: 'Node.js is a cross-platform, open-source JavaScript runtime environment.',
+            url: 'https://en.wikipedia.org/wiki/Node.js',
+            source: 'Wikipedia',
+          },
+        ],
+        'sql': [
+          {
+            title: 'SQL - Wikipedia',
+            description: 'SQL (Structured Query Language) is a domain-specific language for managing data in databases.',
+            url: 'https://en.wikipedia.org/wiki/SQL',
+            source: 'Wikipedia',
+          },
+        ],
+        'machine learning': [
+          {
+            title: 'Machine Learning - Wikipedia',
+            description: 'Machine learning is a field of study in artificial intelligence concerned with algorithms that improve through experience.',
+            url: 'https://en.wikipedia.org/wiki/Machine_learning',
+            source: 'Wikipedia',
+          },
+        ],
+        'ai': [
+          {
+            title: 'Artificial Intelligence - Wikipedia',
+            description: 'Artificial intelligence is intelligence demonstrated by machines, as opposed to natural intelligence.',
+            url: 'https://en.wikipedia.org/wiki/Artificial_intelligence',
+            source: 'Wikipedia',
+          },
+        ],
+      };
+
+      const queryLower = query.toLowerCase();
+      
+      // Find matching results from search map
+      let results = [];
+      for (const [key, value] of Object.entries(searchMap)) {
+        if (queryLower.includes(key) || key.includes(queryLower)) {
+          results.push(...value);
+        }
+      }
+
+      // If no matches found, return generic programming-related Wikipedia articles
+      if (results.length === 0) {
+        results = [
+          {
+            title: `Search: ${query}`,
+            description: `Explore ${query} concepts with Wikipedia articles and tutorials.`,
+            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/\s+/g, '_'))}`,
+            source: 'Wikipedia',
+          },
+          {
+            title: 'Computer Programming - Wikipedia',
+            description: 'Learn about computer programming fundamentals and concepts.',
+            url: 'https://en.wikipedia.org/wiki/Computer_programming',
+            source: 'Wikipedia',
+          },
+          {
+            title: 'Software Development - Wikipedia',
+            description: 'Overview of software development processes and methodologies.',
+            url: 'https://en.wikipedia.org/wiki/Software_development',
+            source: 'Wikipedia',
+          },
+        ];
+      }
 
       return {
         success: true,
-        data: mockResults.slice(0, limit),
+        data: results.slice(0, limit),
         query,
       };
     } catch (error) {

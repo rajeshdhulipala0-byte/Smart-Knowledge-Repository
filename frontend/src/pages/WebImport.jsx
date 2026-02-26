@@ -176,7 +176,9 @@ const WebImport = () => {
       toast.success('Knowledge imported successfully!');
       navigate(`/knowledge/${response.data._id}`);
     } catch (error) {
-      toast.error('Failed to import from URL');
+      console.error('Import error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to import from URL';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
