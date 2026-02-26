@@ -231,7 +231,15 @@ const WebImport = () => {
       {/* Tab Content */}
       <div className="bg-white rounded-lg shadow-md p-6">
         {/* URL Import Tab */}
-        {activ{!user && (
+        {activeTab === 'url' && (
+          <div>
+            <h2 className="text-xl font-bold mb-4">Import from URL</h2>
+            <p className="text-gray-600 mb-6">
+              Enter a URL to automatically extract and import content as knowledge
+            </p>
+
+            <div className="space-y-4">
+              {!user && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
                   <FiAlertCircle className="text-yellow-600 text-xl flex-shrink-0 mt-0.5" />
                   <div>
@@ -249,14 +257,6 @@ const WebImport = () => {
                 </div>
               )}
 
-              eTab === 'url' && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Import from URL</h2>
-            <p className="text-gray-600 mb-6">
-              Enter a URL to automatically extract and import content as knowledge
-            </p>
-
-            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Enter URL
