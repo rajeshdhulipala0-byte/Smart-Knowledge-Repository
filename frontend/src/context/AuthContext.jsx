@@ -22,10 +22,31 @@ export const AuthProvider = ({ children }) => {
 
     if (token && savedUser) {
       setUser(savedUser);
+      
+      // Apply saved theme on app load
+      const theme = savedUser.preferences?.theme || 'light';
+      applyTheme(theme);
     }
 
     setLoading(false);
   }, []);
+
+  // Function to apply theme
+  const applyTheme = (theme) => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else if (theme === 'auto') {
+      // Detect system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  };
 
   const login = async (email, password) => {
     const response = await authService.login({ email, password });
@@ -49,8 +70,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-    setUser((prev) => ({ ...prev, ...userData }));
-    localStorage.setItem('user', JSON.stringify({ ...user, ...userData }));
+    setUser((prev) => {
+      const updatedUser = { ...prev, ...userData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   };
 
   const isAdmin = () => {

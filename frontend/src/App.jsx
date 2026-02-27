@@ -9,6 +9,7 @@ import Search from './pages/Search'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
 import WebImport from './pages/WebImport'
+import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
@@ -58,6 +59,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="profile/:userId"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

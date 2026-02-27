@@ -39,16 +39,41 @@ const Settings = () => {
         linkedin: user.social?.linkedin || '',
         github: user.social?.github || '',
       });
-      setPreferences(user.preferences || {
+      const userPreferences = user.preferences || {
         theme: 'light',
         emailNotifications: true,
         language: 'en',
-      });
+      };
+      setPreferences(userPreferences);
+      
+      // Apply theme on load
+      applyTheme(userPreferences.theme);
+      
+      // Update avatar preview when user avatar changes
       if (user.avatar) {
-        setAvatarPreview(`http://localhost:5000${user.avatar}`);
+        setAvatarPreview(`http://localhost:5000${user.avatar}?t=${Date.now()}`);
+      } else {
+        setAvatarPreview(null);
       }
     }
-  }, [user]);
+  }, [user, user?.avatar]); // Add user?.avatar as dependency
+
+  // Function to apply theme
+  const applyTheme = (theme) => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else if (theme === 'auto') {
+      // Detect system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -97,12 +122,16 @@ const Settings = () => {
     setLoading(true);
     try {
       const response = await authService.uploadAvatar(file);
+      console.log('Avatar upload response:', response);
       if (response.success) {
         updateUser(response.data);
-        setAvatarPreview(`http://localhost:5000${response.data.avatar}`);
+        // Add cache busting parameter to force image reload
+        const avatarUrl = `http://localhost:5000${response.data.avatar}?t=${Date.now()}`;
+        setAvatarPreview(avatarUrl);
         toast.success('Avatar uploaded successfully!');
       }
     } catch (err) {
+      console.error('Avatar upload error:', err);
       toast.error(err.response?.data?.message || 'Failed to upload avatar');
     } finally {
       setLoading(false);
@@ -141,11 +170,7 @@ const Settings = () => {
         toast.success('Preferences updated successfully!');
         
         // Apply theme
-        if (preferences.theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        applyTheme(preferences.theme);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update preferences');
@@ -204,6 +229,7 @@ const Settings = () => {
                         <img
                           src={avatarPreview}
                           alt="Avatar"
+                          key={avatarPreview}
                           className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
                         />
                       ) : (

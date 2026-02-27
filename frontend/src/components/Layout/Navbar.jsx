@@ -101,6 +101,7 @@ const Navbar = () => {
                       <img
                         src={`http://localhost:5000${user.avatar}`}
                         alt={user.name}
+                        key={user.avatar}
                         className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                       />
                     ) : (
@@ -236,6 +237,7 @@ const Navbar = () => {
                       <img
                         src={`http://localhost:5000${user.avatar}`}
                         alt={user.name}
+                        key={user.avatar}
                         className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
                       />
                     ) : (
